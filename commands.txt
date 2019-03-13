@@ -1,0 +1,17 @@
+Terminal commands:
+	1. cp - copies content of one file in the directory to the another one.
+Command line parametres are: cp, nameOfFile1, nameOfFile2 . Example: cp text1.txt text2.txt
+	2. rm - removes the file from current directory 
+Command line parametres are: rm, nameOfFile . Example: rm text1.txt
+	3. cat - prints out all the content of selected file
+Command line parametres are: cat, nameOfFile . Example: cat text1.txt
+	4. cd -changes current directory
+Command line parametres are: cd, newDirectoryAbsolutePath . Example: cd /home/aigerim/Desktop/Bash-system-programming-project-
+	5. ls - prints out the list of content of current directory
+Command line parametres are: ls . Example:ls
+	6. touch - creates new text file in the directory
+Command line parametres are: touch, newFileName . Example:touch newfile.txt
+	7. gcc - compiles selected C program
+Command line parametres are: gcc nameOfProgramFile . Example:gcc myprog.c
+	8. help - prints out usage information
+Command line parametres are: help . Example:help

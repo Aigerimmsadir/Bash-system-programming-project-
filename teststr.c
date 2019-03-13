@@ -7,7 +7,7 @@
 	#define _GNU_SOURCE
 	#include <sys/stat.h>
 	#include <sys/syscall.h>
-	
+	#include <limits.h>
 
 
        #define handle_error(msg) \
@@ -19,14 +19,28 @@
            unsigned short d_reclen;
            char           d_name[];
        };
-
-#define BUF_SIZE 8192
+	#define BUF_SIZE 1024
        
-	
+	char line1[80];
+
+	void getLine(){
+		char next;// = getchar();	
+			int i=0;
+			memset(line1,0,255);
+			while(next=getchar()){
+				if(next!='\n' && next!='\0'){
+					line1[i]=next;
+					i++;
+				}
+				else break;
+			}
+	}
+
 
 
    static char*  currentdir = "/home/aigerim/Desktop/systemprog/Bash-system-programming-project-" ;
-
+    char* filename1 = "textfile1.txt";
+        char *filename2="";
 	void printDirInfo(){
            int fd, nread;
            char buf[BUF_SIZE];
@@ -67,8 +81,20 @@
      
 	}
 
-
-
+char filepath[80];
+char filepath2[80];
+	
+	void catStr(){
+		strcpy(filepath,"");
+		strcat(filepath,currentdir);
+		strcat(filepath,"\\");
+		strcat(filepath,filename1);
+		strcpy(filepath2,"");
+		strcat(filepath2,currentdir);
+		strcat(filepath2,"\\");
+		strcat(filepath2,filename2);
+	}
+	
 	void PrintFileInfo(){
 	    printf("\n");
 		char kek[80];
@@ -76,11 +102,11 @@
 		printf("File content is below:\n");
 		int fd; 
 
-    	char buf2[100000]; 
+    	char buf2[INT_MAX]; 
         
  		fd= open(kek, O_RDWR); 
-  
-    	write(1, buf2, read(fd, buf2, 100000)); 
+        while(read(fd, buf2, INT_MAX)!=EOF)     
+    	write(1, buf2, read(fd, buf2, INT_MAX)); 
   		
 
     	close(fd);
@@ -101,50 +127,37 @@
   
 
 			close(fd);
-			printf("\n\n");
 	
 	}
+	char compilePath[80] ;
+	void concatPathToCompile(){
+		catStr();
+		memset(compilePath,0,255);
+		strcat(compilePath,"cd ");
+		strcat(compilePath,currentdir);
+		strcat(compilePath," && gcc ");
+		strcat(compilePath,filename1);
+		strcat(compilePath," -o a && ./a");
+	}
 
-
+	void compile(){
+		concatPathToCompile();
+		system(compilePath);
+	}
 	void copy(){
-	    int input_fd, output_fd;    
-	    ssize_t ret_in, ret_out;    
-	    char buffer[BUF_SIZE];   
-	 
-
-	            char kek1[80],kek2[80];
-	        scanf("%s",kek1);
-	        scanf("%s",kek2);
-
-
-	    input_fd = open (kek1, O_RDONLY);
-	    if (input_fd == -1) {
-	            perror ("open");
-	          
-	    }
-	 
-
-	    output_fd = open(kek2, O_WRONLY | O_CREAT, 0644);
-	    if(output_fd == -1){
-	        perror("open");
-	        
-	    }
-	 
-
-	    while((ret_in = read (input_fd, &buffer, BUF_SIZE)) > 0){
-	            ret_out = write (output_fd, &buffer, (ssize_t) ret_in);
-	            if(ret_out != ret_in){
-
-	                perror("write");
-	              
-	            }
-	    }
-	 
-
-	    close (input_fd);
-	    close (output_fd);
-	 
-	 
+		char kek1[80],kek2[80];
+		scanf("%s",kek1);
+		scanf("%s",kek2);
+		int filedesc = open("testfile.txt", O_WRONLY | O_APPEND);
+ 
+    	if (filedesc < 0) {
+        	write(2, "There was an error writing to testfile.txt\n", 43);
+   		}
+ 
+    	if (write(filedesc, "This will be output to testfile.txt\n", 36) != 36) {
+       		write(2, "There was an error writing to testfile.txt\n", 43);
+       		
+   		}
 	}	
 
     int main (int c, char *argv[]) {
@@ -212,7 +225,7 @@
 			}
 			 else if(strcmp(option,"cp")==0){
 			 	
-			 	copy();
+			 	
 			 	
 			 }
 	}
