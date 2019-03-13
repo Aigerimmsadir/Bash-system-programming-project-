@@ -2,50 +2,17 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
  
 #define BUF_SIZE 8192
  
-int main(int argc, char* argv[]) {
- 
-    int input_fd, output_fd;    /* Input and output file descriptors */
-    ssize_t ret_in, ret_out;    /* Number of bytes returned by read() and write() */
-    char buffer[BUF_SIZE];      /* Character buffer */
- 
-    /* Are src and dest file name arguments missing */
-            char kek1[80],kek2[80];
-        scanf("%s",kek1);
-        scanf("%s",kek2);
+#define __getname()     kmem_cache_alloc(names_cachep, SLAB_KERNEL)
+#define putname(name)   kmem_cache_free(names_cachep, (void *)(name))
 
- 
-    /* Create input file descriptor */
-    input_fd = open (kek1, O_RDONLY);
-    if (input_fd == -1) {
-            perror ("open");
-            return 2;
-    }
- 
-    /* Create output file descriptor */
-    output_fd = open(kek2, O_WRONLY | O_CREAT, 0644);
-    if(output_fd == -1){
-        perror("open");
-        return 3;
-    }
- 
-    /* Copy process */
-    while((ret_in = read (input_fd, &buffer, BUF_SIZE)) > 0){
-            ret_out = write (output_fd, &buffer, (ssize_t) ret_in);
-            if(ret_out != ret_in){
-                /* Write error */
-                perror("write");
-                return 4;
-            }
-    }
- 
-    /* Close file descriptors */
-    close (input_fd);
-    close (output_fd);
- 
-    return (EXIT_SUCCESS);
+char *getname(const char *filename) {
+        char *tmp = __getname();        /* allocate some memory */
+        strncpy_from_user(tmp, filename, PATH_MAX + 1);
+        return tmp;
 }
