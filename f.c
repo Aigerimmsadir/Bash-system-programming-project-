@@ -458,17 +458,17 @@ int sys_close(const int fh)
   return rc > 0 ? close(fh) : rc;
 }
 
-/*arguments of syscall can be found on http://blog.rchapman.org/post/36801038863/linux-system-call-table-for-x86-64*/
-int main(int argc, char* argv[]){
-  const char fileName[7] = "me.txt";
-  //create a file that the owner can read/write. flags can be found easily by google
-  syscall(sys_open,fileName,O_CREAT,S_IRUSR|S_IWUSR);
-  //open it as write only
-  int fd = syscall(sys_open,fileName,O_WRONLY);
-  //write somehing
+// /*arguments of syscall can be found on http://blog.rchapman.org/post/36801038863/linux-system-call-table-for-x86-64*/
+// int main(int argc, char* argv[]){
+//   const char fileName[7] = "me.txt";
+//   //create a file that the owner can read/write. flags can be found easily by google
+//   syscall(sys_open,fileName,O_CREAT,S_IRUSR|S_IWUSR);
+//   //open it as write only
+//   int fd = syscall(sys_open,fileName,O_WRONLY);
+//   //write somehing
 
-  //close the file
-  syscall(sys_close,fd);
-  //change permission to executable
+//   //close the file
+//   syscall(sys_close,fd);
+//   //change permission to executable
 
-}
+// }
