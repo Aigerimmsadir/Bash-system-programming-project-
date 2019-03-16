@@ -53,7 +53,6 @@ char** str_split(char* a_str, const char a_delim)
     delim[0] = a_delim;
     delim[1] = 0;
 
-    /* Count how many elements will be extracted. */
     while (*tmp)
     {
         if (a_delim == *tmp)
@@ -64,11 +63,8 @@ char** str_split(char* a_str, const char a_delim)
         tmp++;
     }
 
-    /* Add space for trailing token. */
     count += last_comma < (a_str + strlen(a_str) - 1);
 
-    /* Add space for terminating null string so caller
-       knows where the list of returned strings ends. */
     count++;
 
     result = malloc(sizeof(char*) * count);
@@ -133,7 +129,7 @@ char** str_split(char* a_str, const char a_delim)
                    printf("%-20s",  d->d_name);
                    if (m==1) printf(", " );
                    else 
-                   printf("%s\n", (d_type == DT_REG) ?  "regular" :
+                   printf("%s\n", (d_type == DT_REG) ?  "file" :
                                     (d_type == DT_DIR) ?  "directory" :
                                     (d_type == DT_FIFO) ? "FIFO" :
                                     (d_type == DT_SOCK) ? "socket" :
@@ -151,7 +147,7 @@ char** str_split(char* a_str, const char a_delim)
                           printf("%-20s ",  d->d_name);
                       if (m==1) printf(", " );
                       else 
-                          printf("%s\n", (d_type == DT_REG) ?  "regular" :
+                          printf("%s\n", (d_type == DT_REG) ?  "file" :
                                     (d_type == DT_DIR) ?  "directory" :
                                     (d_type == DT_FIFO) ? "FIFO" :
                                     (d_type == DT_SOCK) ? "socket" :
@@ -184,23 +180,6 @@ char** str_split(char* a_str, const char a_delim)
     }
 
 
-
-    void PrintFileInfo(){
-        printf("\n");
-        char kek[80];
-        scanf("%s",kek);
-        printf("File content is below:\n");
-        int fd; 
-
-        char buf2[100000]; 
-        
-        fd= open(kek, O_RDWR); 
-  
-        write(1, buf2, read(fd, buf2, 100000)); 
-        
-
-        close(fd);
-    }
 
 
 
@@ -259,7 +238,45 @@ char** str_split(char* a_str, const char a_delim)
         close (output_fd);
      
      
-    }   
+    }
+    void append(char80 first, char80 second){
+        int input_fd, output_fd;    
+        ssize_t ret_in, ret_out;    
+        char buffer[BUF_SIZE];   
+        
+
+        char kek1[80],kek2[80];
+        strcpy(kek1,first.c);
+        strcpy(kek2,second.c);
+        input_fd = open (kek1, O_RDONLY);
+        if (input_fd == -1) {
+                perror ("open");
+              
+        }
+     
+
+        output_fd = open(kek2, O_WRONLY|O_APPEND);
+        if(output_fd == -1){
+            perror("open");
+            
+        }
+     
+
+        while((ret_in = read (input_fd, &buffer, BUF_SIZE)) > 0){
+                ret_out = write (output_fd, &buffer, (ssize_t) ret_in);
+                if(ret_out != ret_in){
+
+                    perror("write");
+                  
+                }
+        }
+     
+
+        close (input_fd);
+        close (output_fd);
+     
+     
+    }      
 int contains(char ** line,char * command){
   for(int i=0;i<sizeof(line);i++){
     if(strcmp(line[i],command)==0) return 1;
@@ -306,12 +323,24 @@ int contains(char ** line,char * command){
        }
             if(strcmp(option,"cd")==0){
                 char kek[80];
-                strcpy(kek,tokens[1]);            
-                int fd=chdir(kek);
+                strcpy(kek,tokens[1]);
+                int fd;
+                if(kek[0]=='/')            
+                 fd=chdir(kek);
+                else{
+                  strcat(currentdir,"/");
+                  strcat(currentdir,kek);
+                  fd = chdir(currentdir);
+                }
                 
                 
             }    
              else if(strcmp(option,"cat")==0){
+              int j=0;
+                while(tokens[j]!=NULL){
+                  j++;
+                }
+               if(j<3){
                 printf("\n");
                 char kek[80];
                 strcpy(kek,tokens[1]);  
@@ -326,6 +355,16 @@ int contains(char ** line,char * command){
                 
 
                 close(fd);
+              }
+                 else{
+                  char80 *file1;
+                  file1 = malloc (sizeof (char80));
+                  char80 *file2;
+                  file2 = malloc (sizeof (char80));  
+                  strcpy(file1->c,tokens[1]);
+                  strcpy(file2->c,tokens[3]);     
+                  append(*file1,*file2);  
+              }
             }
 
              else if(strcmp(option,"help")==0){
@@ -334,22 +373,31 @@ int contains(char ** line,char * command){
 
              else if(strcmp(option,"rm")==0){
                 
-                char kek[80];
-                strcpy(kek,tokens[1]);  
-                int rm = unlink(kek);
-                if(rm==0)
-                printf("File %s was deleted successfully!\n",kek );             
+                 int j=1;  
+                 while(tokens[j]!=NULL){
+                    char kek[80];
+                    strcpy(kek,tokens[j++]);  
+                    int fd = unlink(kek); 
+                    if(fd!=-1)
+                    printf("File %s was deleted successfully!\n",kek );
+              }      
             }
              else if(strcmp(option,"0")==0){
                 printf("Bye!\n");
                 break;
             }
              else if(strcmp(option,"touch")==0){
-                char kek[80];
-                strcpy(kek,tokens[1]);  
-                int fd= open(kek, O_CREAT); 
-                if(fd!=-1)
-                printf("File %s was created successfully!\n",kek );
+                int j=1;  
+               
+                 while(tokens[j]!=NULL){
+                    char kek[80];
+                    strcpy(kek,tokens[j++]);  
+                    int fd = open(kek, O_CREAT); 
+                    if(fd!=-1)
+                    printf("File %s was created successfully!\n",kek );
+            }
+           
+                      
 
             }
             else if(strcmp(option,"mkdir")==0){
